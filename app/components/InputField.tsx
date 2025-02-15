@@ -21,7 +21,6 @@ interface InputFieldProps {
     color?: string;
     select?: boolean;
     children?: React.ReactNode;
-    defaultValue?: string;
 }
 
 export default function InputField({
@@ -40,7 +39,6 @@ export default function InputField({
     color = "black",
     select,
     width,
-    defaultValue,
     value,
     children,
     ...props

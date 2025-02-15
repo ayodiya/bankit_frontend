@@ -7,7 +7,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { Formik } from "formik";
 import { useRouter } from "next/navigation";
 import { Notify } from "notiflix/build/notiflix-notify-aio";
-import { useEffect } from "react";
 
 import InputField from "@/app/components/InputField";
 import Button from "@/app/components/ButtonCom";
@@ -61,18 +60,28 @@ export default function Login() {
               validationSchema={adminLoginValidator}
               onSubmit={async (values, { resetForm }) => {
                 try {
-                  console.log(values)
-
+                  console.log(values);
                   Notify.success("Login successful");
                   push("/");
+                } catch (error: unknown) {
+                  let errorMessage = "Login failed";
 
-                } catch (error) {
-                  Notify.failure(
-                    (error as any)?.data?.message || "Login failed",
-                  );
+                  if (error instanceof Error) {
+                    errorMessage = error.message;
+                  } else if (
+                    typeof error === "object" &&
+                    error !== null &&
+                    "data" in error &&
+                    typeof (error as { data?: { message?: string } }).data?.message === "string"
+                  ) {
+                    errorMessage = (error as { data: { message: string } }).data.message;
+                  }
+
+                  Notify.failure(errorMessage);
                 }
                 resetForm();
               }}
+
             >
               {({
                 handleChange,
