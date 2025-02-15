@@ -1,95 +1,160 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Container from "@mui/material/Container";
+import CircularProgress from "@mui/material/CircularProgress";
+import { Formik } from "formik";
+import { useRouter } from "next/navigation";
+import { Notify } from "notiflix/build/notiflix-notify-aio";
+import { useEffect } from "react";
+
+import InputField from "@/app/components/InputField";
+import Button from "@/app/components/ButtonCom";
+
+
+import adminLoginValidator, {
+  PASSWORD,
+  PASSWORD_LABEL,
+  EMAIL,
+  EMAIL_LABEL,
+} from "@/app/validators/loginValidator";
+
+const initialValues = {
+  [PASSWORD]: "",
+  [EMAIL]: "",
+};
+
+export default function Login() {
+  const { push } = useRouter();
+
+
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <>
+      <Box
+        sx={{
+          backgroundColor: 'white',
+          minHeight: "100vh",
+          alignItems: "center",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <Container maxWidth="lg">
+          <Box>
+            <Box
+              sx={{
+                fontWeight: 700,
+                fontSize: "48px",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              Log In
+            </Box>
+            <Formik
+              style={{
+                width: "100%",
+              }}
+              initialValues={initialValues}
+              validationSchema={adminLoginValidator}
+              onSubmit={async (values, { resetForm }) => {
+                try {
+                  console.log(values)
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+                  Notify.success("Login successful");
+                  push("/");
+
+                } catch (error) {
+                  Notify.failure(
+                    (error as any)?.data?.message || "Login failed",
+                  );
+                }
+                resetForm();
+              }}
+            >
+              {({
+                handleChange,
+                handleSubmit,
+                errors,
+                isSubmitting,
+                handleBlur,
+              }) => (
+                <Box
+                  onSubmit={handleSubmit}
+                  component="form"
+                  sx={{
+                    paddingTop: "40px",
+                    width: "100%",
+                  }}
+                >
+                  <Stack
+                    justifyContent="center"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ width: "100%" }}
+                  >
+                    <Box
+                      sx={{
+                        display: { md: "flex" },
+                        justifyContent: { md: "center" },
+                        width: "100%",
+                      }}
+                    >
+                      <InputField
+                        name={EMAIL}
+                        error={errors[EMAIL] !== undefined}
+                        helperText={errors[EMAIL] || ""}
+                        type="text"
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        label={EMAIL_LABEL}
+                        placeholder={EMAIL_LABEL}
+                      />
+                    </Box>
+                    <Box
+                      sx={{
+                        display: { md: "flex" },
+                        justifyContent: { md: "center" },
+                        width: "100%",
+                      }}
+                    >
+                      <InputField
+                        name={PASSWORD}
+                        error={errors[PASSWORD] !== undefined}
+                        helperText={errors[PASSWORD] || ""}
+                        type="password"
+                        onBlur={handleBlur}
+                        onChange={handleChange}
+                        label={PASSWORD_LABEL}
+                        placeholder={PASSWORD_LABEL}
+                      />
+                    </Box>
+                    <Box
+                      sx={{
+                        display: { md: "flex" },
+                        justifyContent: { md: "center" },
+                        width: { xs: "100%", md: "50%" },
+                      }}
+                    >
+                      <Button
+                        disabled={isSubmitting}
+                        type="submit"
+                        color="white"
+                        backgroundColor="primary.main"
+                        text={isSubmitting ? <CircularProgress /> : "Log in"}
+                        width={{ xs: "100%", md: "35%" }}
+                        variant="contained"
+                      />
+                    </Box>
+                  </Stack>
+                </Box>
+              )}
+            </Formik>
+          </Box>
+        </Container>
+      </Box>
+    </>
   );
 }
